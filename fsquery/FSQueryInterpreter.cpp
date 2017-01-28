@@ -27,6 +27,8 @@
 #include "Value.h"
 #include "ValueType.h"
 
+#include "StringLikeMatcher.h"
+
 #include "FSQueryException.h"
 
 #include <iostream>
@@ -175,6 +177,47 @@ bool FSQueryInterpreter::CheckCondition(ComparisonBoolExprASTNode* node)
 	std::pair<ValueType, Value> leftValue = GetTypedValue(left);
 	std::pair<ValueType, Value> rightValue = GetTypedValue(right);
 	
+	if (node->GetOper() == ComparisonOperator::LIKE)
+	{
+		if (leftValue.first != ValueType::STRING ||
+			rightValue.first != ValueType::STRING)
+		{
+			throw FSQueryException("FSQueryInterpreter: Type mismatch");
+		}
+		
+		result = CheckLikeCondition(leftValue.second.GetString(), rightValue.second.GetString());
+		return result;
+	}
+	
+	if (leftValue.first == ValueType::TIME &&
+		rightValue.first == ValueType::STRING)
+	{
+		TimeValue timeValue;
+		bool parse = TimeValue::ParseTime(rightValue.second.GetString(), timeValue);
+		
+		if (!parse)
+		{
+			throw FSQueryException("FSQueryInterpreter: Type mismatch");
+		}
+		
+		rightValue.first = ValueType::TIME;
+		rightValue.second = Value(timeValue);
+	}
+	else if (rightValue.first == ValueType::TIME &&
+		leftValue.first == ValueType::STRING)
+	{
+		TimeValue timeValue;
+		bool parse = TimeValue::ParseTime(leftValue.second.GetString(), timeValue);
+		
+		if (!parse)
+		{
+			throw FSQueryException("FSQueryInterpreter: Type mismatch");
+		}
+		
+		leftValue.first = ValueType::TIME;
+		leftValue.second = Value(timeValue);
+	}
+	
 	if (leftValue.first != rightValue.first)
 	{
 		throw FSQueryException("FSQueryInterpreter: Type mismatch");
@@ -188,6 +231,10 @@ bool FSQueryInterpreter::CheckCondition(ComparisonBoolExprASTNode* node)
 		
 	case ValueType::NUMBER:
 		result = CheckCondition(leftValue.second.GetNumber(), rightValue.second.GetNumber(), node->GetOper());
+		break;
+		
+	case ValueType::TIME:
+		result = CheckCondition(leftValue.second.GetTimeValue(), rightValue.second.GetTimeValue(), node->GetOper());
 		break;
 		
 	default:
@@ -228,14 +275,17 @@ bool FSQueryInterpreter::CheckCondition(const T& left, const T& right, Compariso
 		result = left >= right;
 		break;
 		
-	// case LIKE:
-		// break;
-		
 	default:
 		throw FSQueryException("FSQueryInterpreter: Unknown comparison operator");
 	}
 	
 	return result;
+}
+
+bool FSQueryInterpreter::CheckLikeCondition(const std::string& left, const std::string& right)
+{
+	StringLikeMatcher matcher(right);
+	return matcher.Match(left);
 }
 
 std::pair<ValueType, Value> FSQueryInterpreter::GetTypedValue(SingleValueASTNode* node)
@@ -280,12 +330,12 @@ std::pair<ValueType, Value> FSQueryInterpreter::GetTypedValue(SingleColumnValueA
 
 std::pair<ValueType, Value> FSQueryInterpreter::GetTypedValue(StringValueASTNode* node)
 {
-	return std::make_pair(ValueType::STRING, node->GetStr());
+	return std::make_pair(ValueType::STRING, Value(node->GetStr()));
 }
 
 std::pair<ValueType, Value> FSQueryInterpreter::GetTypedValue(NumberValueASTNode* node)
 {
-	return std::make_pair(ValueType::NUMBER, node->GetNumber());
+	return std::make_pair(ValueType::NUMBER, Value(node->GetNumber()));
 }
 
 void FSQueryInterpreter::CreateColumns(TableBuilder& tableBuilder, QueryASTNode* queryNode)

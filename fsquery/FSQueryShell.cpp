@@ -18,7 +18,7 @@
 
 FSQueryShell::FSQueryShell()
 {
-	
+	Init();
 }
 
 FSQueryShell::~FSQueryShell()
@@ -26,40 +26,39 @@ FSQueryShell::~FSQueryShell()
 	
 }
 
-void FSQueryShell::Run()
+void FSQueryShell::Init()
 {
-	std::string line;
-	std::cout << "fsquery> ";
-	std::getline(std::cin, line);
-
-	while (line != "quit")
+	SetPrompt("fsquery> ");
+	
+	SetStopCommand("quit");
+	
+	RegisterDefaultAction([this](const std::string& cmd) -> int
 	{
-		try
-		{
-			if (line != "")
-			{
-				RunCommand(line);
-			}
-		}
-		catch (const FSQueryException& e)
-		{
-			std::cout << e.GetMessage() << std::endl;
-		}
-
-		std::cout << "fsquery> ";
-		std::getline(std::cin, line);
-	}
+		return this->RunCommand(cmd);
+	});
 }
 
-void FSQueryShell::RunCommand(const std::string& cmd)
+int FSQueryShell::RunCommand(const std::string& cmd)
 {
-	StringInputStream inputStream(cmd);
-	FSQueryLexer lexer(inputStream);
-	FSQueryParser parser(lexer);
-	std::unique_ptr<QueryASTNode> queryNode = parser.Query();
-	FSQueryInterpreter interpreter;
-	std::unique_ptr<Table> table = interpreter.Interpret(queryNode.get());
-	PrintTable(table.get());
+	int returnVal = 0;
+	
+	try
+	{
+		StringInputStream inputStream(cmd);
+		FSQueryLexer lexer(inputStream);
+		FSQueryParser parser(lexer);
+		std::unique_ptr<QueryASTNode> queryNode = parser.Query();
+		FSQueryInterpreter interpreter;
+		std::unique_ptr<Table> table = interpreter.Interpret(queryNode.get());
+		PrintTable(table.get());
+	}
+	catch (const FSQueryException& e)
+	{
+		std::cout << e.GetMessage() << std::endl;
+		returnVal = -1;
+	}
+	
+	return returnVal;
 }
 
 void FSQueryShell::PrintTable(Table* table)

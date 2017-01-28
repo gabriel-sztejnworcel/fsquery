@@ -7,7 +7,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 all: fsquery
 
 fsquery: $(OBJECTS)
-	$(CC) $(CC_FLAGS) $(OBJECTS) -o fsquery
+	$(CC) $(CC_FLAGS) $(OBJECTS) -o fsquery -lreadline
 
 %.o: %.cpp
 	$(CC) $(CC_FLAGS) -c $< -o $@

@@ -82,6 +82,20 @@ double RowIteratorImpl::GetNumber(size_t columnPosition) /* override */
 	return value->GetNumber();
 }
 
+TimeValue RowIteratorImpl::GetTimeValue(const std::string& columnName) /* override */
+{
+	size_t columnPosition = m_tableImpl.m_tableHeader->GetColumnPosition(columnName);
+	return GetTimeValue(columnPosition);
+}
+
+TimeValue RowIteratorImpl::GetTimeValue(size_t columnPosition) /* override */
+{
+	AssertType(columnPosition, ValueType::TIME);
+	Row* row = (*m_tableRowIterator).get();
+	Value* value = row->GetValue(columnPosition);
+	return value->GetTimeValue();
+}
+
 std::string RowIteratorImpl::ConvertToString(const std::string& columnName) /* override */
 {
 	size_t columnPosition = m_tableImpl.m_tableHeader->GetColumnPosition(columnName);
@@ -104,6 +118,10 @@ std::string RowIteratorImpl::ConvertToString(size_t columnPosition) /* override 
 		numValue = GetNumber(columnPosition);
 		longValue = std::lround(numValue);
 		strValue = longValue == numValue ? std::to_string(longValue) : std::to_string(numValue);
+		break;
+		
+	case ValueType::TIME:
+		strValue = GetTimeValue(columnPosition).ToString();
 		break;
 		
 	default:

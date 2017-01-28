@@ -13,6 +13,12 @@ Value::Value(double numValue) :
 	
 }
 
+Value::Value(const TimeValue& timeValue) :
+	m_timeValue(timeValue)
+{
+	
+}
+
 std::string Value::GetString() const
 {
 	return m_strValue;
@@ -21,4 +27,9 @@ std::string Value::GetString() const
 double Value::GetNumber() const
 {
 	return m_numValue;
+}
+
+TimeValue Value::GetTimeValue() const
+{
+	return m_timeValue;
 }

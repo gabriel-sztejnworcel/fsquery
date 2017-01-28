@@ -7,6 +7,7 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
+#include <ctime>
 
 PosixDirectoryReader::PosixDirectoryReader()
 {
@@ -32,8 +33,9 @@ std::unique_ptr<Table> PosixDirectoryReader::ReadDirectory(const std::string& pa
 
 	tableBuilder.AddColumn("fullpath", ValueType::STRING);
 	tableBuilder.AddColumn("name", ValueType::STRING);
-    tableBuilder.AddColumn("extension", ValueType::STRING);
+	tableBuilder.AddColumn("extension", ValueType::STRING);
 	tableBuilder.AddColumn("size", ValueType::NUMBER);
+	tableBuilder.AddColumn("modtime", ValueType::TIME);
 	tableBuilder.SealColumns();
 
 	ReadDirectoryInner(dirpath, recursive, tableBuilder);
@@ -59,11 +61,11 @@ void PosixDirectoryReader::ReadDirectoryInner(const std::string& path, bool recu
 		
 		while (dirEntry != nullptr)
 		{
-			std::string fileName(dirEntry->d_name);
+			std::string fileNamePlusExtension(dirEntry->d_name);
 			
-			if (fileName != "." && fileName != "..")
+			if (fileNamePlusExtension != "." && fileNamePlusExtension != "..")
 			{
-				std::string fullPath = path + fileName;
+				std::string fullPath = path + fileNamePlusExtension;
 				
 				int statResult = stat(fullPath.c_str(), &fileStat);
 				
@@ -79,10 +81,15 @@ void PosixDirectoryReader::ReadDirectoryInner(const std::string& path, bool recu
 				}
 				else
 				{
+					std::string fileName;
+					std::string extension;
+					SeparateFileNameFromExtension(fileNamePlusExtension, fileName, extension);
+					
 					tableBuilder.SetString(0, fullPath);
 					tableBuilder.SetString(1, fileName);
-                    tableBuilder.SetString(2, GetFileExtension(fileName));
+					tableBuilder.SetString(2, extension);
 					tableBuilder.SetNumber(3, fileStat.st_size);
+                    tableBuilder.SetTimeValue(4, GetTimeValue(fileStat));
 					tableBuilder.SealRow();
 				}
 			}
@@ -101,4 +108,18 @@ void PosixDirectoryReader::ReadDirectoryInner(const std::string& path, bool recu
 		
 		throw;
 	}
+}
+
+TimeValue PosixDirectoryReader::GetTimeValue(struct stat& fileStat)
+{
+	struct tm* timeinfo = localtime(&fileStat.st_mtime);
+	
+	return TimeValue(
+		timeinfo->tm_year + 1900,
+		timeinfo->tm_mon + 1,
+		timeinfo->tm_mday,
+		timeinfo->tm_hour,
+		timeinfo->tm_min,
+		timeinfo->tm_sec
+		);
 }

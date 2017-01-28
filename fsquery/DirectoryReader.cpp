@@ -12,16 +12,18 @@ DirectoryReader::~DirectoryReader()
 	return std::make_unique<PosixDirectoryReader>();
 }
 
-std::string DirectoryReader::GetFileExtension(const std::string& fileName)
+void DirectoryReader::SeparateFileNameFromExtension(const std::string& fileNamePlusExtension, std::string& fileName, std::string& extension)
 {
-	std::string extension = "";
+	size_t dotPosition = fileNamePlusExtension.find_last_of(".");
 	
-	size_t dotPosition = fileName.find_last_of(".");
-	
-	if (dotPosition != std::string::npos)
+	if (dotPosition == std::string::npos)
 	{
-		extension = fileName.substr(dotPosition + 1);
+		fileName = fileNamePlusExtension;
+		extension = "";
 	}
-	
-	return extension;
+	else
+	{
+		fileName = fileNamePlusExtension.substr(0, dotPosition);
+		extension = fileNamePlusExtension.substr(dotPosition + 1);
+	}
 }

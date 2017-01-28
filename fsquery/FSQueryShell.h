@@ -2,6 +2,8 @@
 #ifndef FSQUERYSHELL_H
 #define FSQUERYSHELL_H
 
+#include "Shell.h"
+
 #include <string>
 #include <vector>
 
@@ -9,16 +11,16 @@ class Table;
 class TableHeader;
 class RowIterator;
 
-class FSQueryShell
+class FSQueryShell : public Shell
 {
 public:
 	FSQueryShell();
 	~FSQueryShell();
-	
-	void Run();
+    
+    void Init();
 	
 private:
-	void RunCommand(const std::string& cmd);
+	int RunCommand(const std::string& cmd);
 	void PrintTable(Table* table);
 	void PrintHeader(TableHeader* tableHeader, const std::vector<size_t>& columnSizes);
 	void PrintRowSeparator(const std::vector<size_t>& columnSizes);

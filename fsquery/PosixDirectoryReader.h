@@ -3,6 +3,9 @@
 #define POSIXDIRECTORYREADER_H
 
 #include "DirectoryReader.h"
+#include "TimeValue.h"
+
+struct stat;
 
 class TableBuilder;
 
@@ -16,6 +19,7 @@ public:
 	
 private:
 	void ReadDirectoryInner(const std::string& path, bool recursive, TableBuilder& tableBuilder);
+	TimeValue GetTimeValue(struct stat& fileStat);
 };
 
 #endif // POSIXDIRECTORYREADER_H

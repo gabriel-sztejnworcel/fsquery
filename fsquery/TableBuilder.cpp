@@ -55,32 +55,26 @@ bool TableBuilder::ColumnsSealed()
 
 void TableBuilder::SetValue(size_t columnPosition, Value* value)
 {
-	if (!m_columnsSealed)
-	{
-		throw FSQueryException("TableBuilder: Columns are not sealed, cannot set row values");
-	}
-
+	AssertColumnsSealed();
 	m_values[columnPosition] = std::make_unique<Value>(*value);
 }
 
 void TableBuilder::SetString(size_t columnPosition, const std::string& str)
 {
-	if (!m_columnsSealed)
-	{
-		throw FSQueryException("TableBuilder: Columns are not sealed, cannot set row values");
-	}
-
+	AssertColumnsSealed();
 	m_values[columnPosition] = std::make_unique<Value>(str);
 }
 
 void TableBuilder::SetNumber(size_t columnPosition, double number)
 {
-	if (!m_columnsSealed)
-	{
-		throw FSQueryException("TableBuilder: Columns are not sealed, cannot set row values");
-	}
-
+	AssertColumnsSealed();
 	m_values[columnPosition] = std::make_unique<Value>(number);
+}
+
+void TableBuilder::SetTimeValue(size_t columnPosition, const TimeValue& timeValue)
+{
+	AssertColumnsSealed();
+	m_values[columnPosition] = std::make_unique<Value>(timeValue);
 }
 
 void TableBuilder::SealRow()
@@ -115,4 +109,12 @@ void TableBuilder::Clear()
 	m_numColumns = 0;
 	m_values = std::vector<std::unique_ptr<Value>>();
 	m_rows = std::vector<std::unique_ptr<Row>>();
+}
+
+void TableBuilder::AssertColumnsSealed()
+{
+	if (!m_columnsSealed)
+	{
+		throw FSQueryException("TableBuilder: Columns are not sealed");
+	}
 }

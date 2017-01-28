@@ -5,7 +5,8 @@
 enum class ValueType
 {
 	STRING,
-	NUMBER
+	NUMBER,
+	TIME
 };
 
 #endif // VALUETYPE_H

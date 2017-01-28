@@ -2,6 +2,10 @@
 #include "FSQueryTests.h"
 #include "FSQueryShell.h"
 
+#include "StringLikeMatcher.h"
+
+#include <iostream>
+
 void RunTests();
 void RunShell();
 

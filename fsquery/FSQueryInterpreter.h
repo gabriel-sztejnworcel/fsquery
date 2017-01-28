@@ -53,6 +53,8 @@ private:
 	template <typename T>
 	bool CheckCondition(const T& left, const T& right, ComparisonOperator oper);
 	
+	bool CheckLikeCondition(const std::string& left, const std::string& right);
+	
 	std::pair<ValueType, Value> GetTypedValue(SingleValueASTNode* node);
 	std::pair<ValueType, Value> GetTypedValue(SingleColumnValueASTNode* node);
 	std::pair<ValueType, Value> GetTypedValue(StringValueASTNode* node);

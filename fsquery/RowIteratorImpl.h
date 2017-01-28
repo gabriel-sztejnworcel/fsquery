@@ -34,6 +34,9 @@ public:
 	double GetNumber(const std::string& columnName) override;
 	double GetNumber(size_t columnPosition) override;
 	
+	TimeValue GetTimeValue(const std::string& columnName) override;
+	TimeValue GetTimeValue(size_t columnPosition) override;
+	
 	std::string ConvertToString(const std::string& columnName) override;
 	std::string ConvertToString(size_t columnPosition) override;
 

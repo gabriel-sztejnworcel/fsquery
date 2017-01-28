@@ -17,7 +17,7 @@ public:
 	virtual std::unique_ptr<Table> ReadDirectory(const std::string& path, const std::string& tableName, bool recursive) = 0;
 	
 protected:
-	std::string GetFileExtension(const std::string& fileName);
+	void SeparateFileNameFromExtension(const std::string& fileNamePlusExtension, std::string& fileName, std::string& extension);
 };
 
 #endif // DIRECTORYREADER_H

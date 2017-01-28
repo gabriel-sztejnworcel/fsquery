@@ -2,6 +2,8 @@
 #ifndef ROWITERATOR_H
 #define ROWITERATOR_H
 
+#include "TimeValue.h"
+
 #include <string>
 
 class ColumnDescriptor;
@@ -28,6 +30,9 @@ public:
 	
 	virtual double GetNumber(const std::string& columnName) = 0;
 	virtual double GetNumber(size_t columnPosition) = 0;
+
+	virtual TimeValue GetTimeValue(const std::string& columnName) = 0;
+	virtual TimeValue GetTimeValue(size_t columnPosition) = 0;
 
 	virtual std::string ConvertToString(const std::string& columnName) = 0;
 	virtual std::string ConvertToString(size_t columnPosition) = 0;
