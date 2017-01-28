@@ -4,7 +4,7 @@ Query your file system using SQL syntax
 
 ### Prerequisites
 
-Linux, g++ with c++14 support
+Linux, g++ with c++14 support, gnu readline library (used for the shell)
 
 ### Installing
 
@@ -31,7 +31,5 @@ This is work in progress, it still lacks many of the planned features and it was
 At the moment, the only attributes that can be queried are full path, file name, extension and file size. Table aliases must be provided everywhere (I hope to change this soon).
 
 ### Currently working on...
-
-More attributes (date modified for example)
 
 An option to embed fsquery queries in shell scripts (using a separate command line utility)
